@@ -1,0 +1,20 @@
+name: Docker-Compose Deploy CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+
+  build:
+
+    runs-on: self-hosted
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Stop previous containers
+      run: docker-compose stop
+    - name: Build and run containers
+      run: docker-compose run --build -d
