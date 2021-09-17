@@ -7,10 +7,20 @@ services:
       - ./volumes/postgresql:/var/lib/postgresql/data/
     env_file:
       - ./.env.db
+  app:
+    build: ./app
+    command: gunicorn catbase.wsgi:application --bind 0.0.0.0:8000
+    expose:
+      - "8000"
+    depends_on:
+      - db
+    env_file:
+      - .env
   nginx:
     build: ./nginx
     volumes:
       - ./public:/home/app/web/public
     ports:
       - "80:80"
-
+    depends_on:
+      - app
