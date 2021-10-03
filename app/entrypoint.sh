@@ -2,14 +2,16 @@
 
 if [ "$DATABASE" = "postgres" ]
 then
-    echo "Postgres еще не запущен..."
+    echo "Waiting Postgres..."
 
-    # Проверяем доступность хоста и порта
     while ! nc -z $POSTGRES_HOST $POSTGRES_PORT; do
       sleep 0.1
     done
 
-    echo "Postgres запущен"
+    echo "Postgres launched"
 fi
+
+python manage.py flush --no-input
+python manage.py migrate
 
 exec "$@"

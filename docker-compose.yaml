@@ -7,6 +7,8 @@ services:
       - ./volumes/postgresql:/var/lib/postgresql/data/
     env_file:
       - ./.env.db
+    ports:
+      - "5432:5432"
   app:
     build: ./app
     command: gunicorn catbase.wsgi:application --bind 0.0.0.0:8000
