@@ -16,3 +16,7 @@ def test_over_capacity(small_cache):
     small_cache.set('Walter', 'White')
     assert small_cache.get("Jesse") == ''
     assert small_cache.get("Walter") == 'White'
+
+
+def test_remove_non_existent_key(small_cache):
+    small_cache.rem('Walter')

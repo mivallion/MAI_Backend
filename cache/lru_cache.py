@@ -27,4 +27,5 @@ class LRUCache:
         self._hash_table[key] = value
 
     def rem(self, key: str) -> None:
-        del self._hash_table[key]
+        if key in self._hash_table.keys():
+            del self._hash_table[key]
