@@ -3,13 +3,7 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
-    path('', views.index, name='index'),
-
-
-    path('user/create/', views.create_user, name='create_user'),
-    path('user/update/<int:user_id>/', views.update_user, name='update_user'),
     path('user/read/<int:user_id>/', views.read_user, name='read_user'),
-    path('user/delete/<int:user_id>/', views.delete_user, name='delete_user'),
 
     path('create/', views.create_cat, name='create_cat'),
     path('update/<int:cat_id>/', views.update_cat, name='update_cat'),
