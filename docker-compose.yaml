@@ -3,8 +3,8 @@ version: '3.3'
 services:
   db:
     image: postgres:13-alpine
-    volumes:
-      - ./volumes/postgresql:/var/lib/postgresql/data/
+#    volumes:
+#      - ./volumes/postgresql:/var/lib/postgresql/data/
     env_file:
       - ./.env.db
     ports:
@@ -23,12 +23,11 @@ services:
     command: gunicorn app:app --bind 0.0.0.0:8001
     expose:
       - "8001"
-    env_file:
-      - .env
   nginx:
     build: ./nginx
     volumes:
       - ./public:/home/app/web/public
+      - ./frontend:/home/app/web/frontend
     ports:
       - "80:80"
     depends_on:

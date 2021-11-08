@@ -1,5 +1,6 @@
 from django.conf import settings
 from django.db import models
+from django.contrib.auth.models import User
 
 
 class Cat(models.Model):
@@ -17,10 +18,5 @@ class Review(models.Model):
     attractiveness = models.PositiveIntegerField()
     sociability = models.PositiveIntegerField()
     playfulness = models.PositiveIntegerField()
-
-
-class CatReview(models.Model):
-    id = models.PositiveIntegerField(primary_key=True)
-    review_id = models.ForeignKey(Review, to_field='id', on_delete=models.CASCADE)
-    cat_id = models.ForeignKey(Cat, to_field='id', on_delete=models.CASCADE)
-    user_id = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    cat = models.ForeignKey(Cat, on_delete=models.CASCADE)

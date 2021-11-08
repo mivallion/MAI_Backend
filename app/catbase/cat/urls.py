@@ -3,15 +3,7 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
-    path('user/read/<int:user_id>/', views.read_user, name='read_user'),
-
-    path('create/', views.create_cat, name='create_cat'),
-    path('update/<int:cat_id>/', views.update_cat, name='update_cat'),
-    path('read/<int:cat_id>/', views.read_cat, name='read_cat'),
-    path('delete/<int:cat_id>/', views.delete_cat, name='delete_cat'),
-
-    path('review/create/', views.create_review, name='create_review'),
-    path('review/update/<int:review_id>/', views.update_review, name='update_review'),
-    path('review/read/<int:review_id>/', views.read_review, name='read_review'),
-    path('review/delete/<int:review_id', views.delete_review, name='delete_review'),
+    path('', views.CatView.as_view()),
+    path('users', views.UserView.as_view()),
+    path('reviews', views.ReviewView.as_view()),
 ]
