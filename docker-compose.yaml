@@ -3,8 +3,8 @@ version: '3.3'
 services:
   db:
     image: postgres:13-alpine
-#    volumes:
-#      - ./volumes/postgresql:/var/lib/postgresql/data/
+    volumes:
+      - pg_volume:/var/lib/postgresql/data/
     env_file:
       - ./.env.db
     ports:
@@ -33,3 +33,6 @@ services:
     depends_on:
       - app
       - gunicorn_app
+
+volumes:
+  pg_volume:

@@ -1,6 +1,6 @@
 import pytest
 
-from app.catbase.utils.cache import LRUCache
+from utils.cache import LRUCache
 
 
 @pytest.fixture()
