@@ -1,14 +1,17 @@
-import Vue from 'vue'
-import GSignInButton from 'vue-google-signin-button'
-import App from './App'
+import 'bootstrap'
+import 'bootstrap/dist/css/bootstrap.min.css'
+import 'font-awesome/css/font-awesome.min.css'
+import 'bootstrap-social/bootstrap-social.css'
+import GAuth from 'vue3-google-oauth2'
+import App from './App.vue'
 
-Vue.config.productionTip = false
+import store from './store'
+import router from './router'
 
-Vue.use(GSignInButton)
+import { createApp } from "vue";
 
-/* eslint-disable no-new */
-new Vue({
-  el: '#app',
-  components: { App },
-  template: '<App/>'
-})
+const gAuthOptions = { clientId: '69737495708-a6v5s6tjarn07abnv0mggpsjj3kq2khu.apps.googleusercontent.com', scope: 'email profile', prompt: 'consent', fetch_basic_profile: false  }
+const app = createApp(App).use(router).use(store).use(GAuth, gAuthOptions);
+
+app.config.productionTip = false;
+app.mount("#app");

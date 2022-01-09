@@ -60,7 +60,7 @@ REST_FRAMEWORK = {
 
 REST_USE_JWT = True
 
-SITE_ID = 1
+SITE_ID = 3
 
 JWT_AUTH_COOKIE = 'access-token'
 JWT_AUTH_REFRESH_COOKIE = 'refresh-token'
