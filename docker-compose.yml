@@ -1,0 +1,110 @@
+version: '3.3'
+
+services:
+  db:
+    image: postgres:13-alpine
+    volumes:
+      - pg_volume:/var/lib/postgresql/data/
+    env_file:
+      - ./.env.db
+    ports:
+      - "5432:5432"
+    networks:
+      - app_network
+  app:
+    build: ./app
+    command: gunicorn catbase.wsgi:application --bind 0.0.0.0:8000
+    expose:
+      - "8000"
+    depends_on:
+      - db
+    env_file:
+      - .env
+    networks:
+      - app_network
+  gunicorn_app:
+    build: ./gunicorn_app
+    command: gunicorn app:app --bind 0.0.0.0:8001
+    expose:
+      - "8001"
+    networks:
+      - app_network
+  nginx:
+    build: ./nginx
+    volumes:
+      - ./public:/home/app/web/public
+      - ./frontend:/home/app/web/frontend
+    ports:
+      - "80:80"
+    depends_on:
+      - app
+      - gunicorn_app
+    networks:
+      - app_network
+
+  elasticsearch:
+    env_file:
+      - ./.env.elk
+    build:
+      context: elasticsearch/
+      args:
+        ELK_VERSION: 7.16.2
+    volumes:
+      - ./elasticsearch/config/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml:ro,z
+      - elasticsearch:/usr/share/elasticsearch/data:z
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+    environment:
+      ES_JAVA_OPTS: "-Xmx256m -Xms256m"
+      ELASTIC_PASSWORD: changeme
+      # Use single node discovery in order to disable production mode and avoid bootstrap checks.
+      # see: https://www.elastic.co/guide/en/elasticsearch/reference/current/bootstrap-checks.html
+      discovery.type: single-node
+    networks:
+      - app_network
+
+  logstash:
+    env_file:
+      - ./.env.elk
+    build:
+      context: logstash/
+      args:
+        ELK_VERSION: 7.16.2
+    volumes:
+      - ./logstash/config/logstash.yml:/usr/share/logstash/config/logstash.yml:ro,z
+      - ./logstash/pipeline:/usr/share/logstash/pipeline:ro,z
+    ports:
+      - "5044:5044"
+      - "5000:5000/tcp"
+      - "5000:5000/udp"
+      - "9600:9600"
+    environment:
+      LS_JAVA_OPTS: "-Xmx256m -Xms256m"
+    networks:
+      - app_network
+    depends_on:
+      - elasticsearch
+
+  kibana:
+    env_file:
+      - ./.env.elk
+    build:
+      context: kibana/
+      args:
+        ELK_VERSION: 7.16.2
+    volumes:
+      - ./kibana/config/kibana.yml:/usr/share/kibana/config/kibana.yml:ro,z
+    ports:
+      - "5601:5601"
+    networks:
+      - app_network
+    depends_on:
+      - elasticsearch
+volumes:
+  pg_volume:
+  elasticsearch:
+
+networks:
+  app_network:
+    driver: bridge

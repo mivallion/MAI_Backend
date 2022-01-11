@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.urls import include, path
 
-from auth.views import GoogleLogin
+from authentication.views import GoogleLogin
 
 urlpatterns = [
     path('api/cats/', include('cat.urls')),
