@@ -1,6 +1,8 @@
-from django.contrib.auth.models import User
+import logging
+
+import elasticsearch_driver.driver as es_driver
+
 from django.http import JsonResponse, Http404, HttpResponseBadRequest
-from rest_framework import viewsets
 from rest_framework.views import APIView
 
 from cat.models import Cat
@@ -8,13 +10,31 @@ from reviews.models import Review
 from reviews.serializers import ReviewSerializer
 from utils.permissions import IsGetOrIsAuthenticated
 
+logger = logging.getLogger(__name__)
 
-class ReviewViewSet(viewsets.ReadOnlyModelViewSet):
-    """
-    This viewset automatically provides `list` and `retrieve` actions.
-    """
-    queryset = Review.objects.all()
-    serializer_class = ReviewSerializer
+
+class SearchView(APIView):
+
+    permission_classes = [IsGetOrIsAuthenticated]
+
+    def get(self, request):
+        logger.error(f"getting reviews: user {request.user}")
+        if 'query' in self.request.GET:
+            query = self.request.GET.get('query')
+        else:
+            query = '*'
+        try:
+            response = es_driver.ElasticsearchDriver().search('reviews', query)
+        except es_driver.ElasticsearchDriverException as e:
+            return JsonResponse(status=500, data={"error": str(e)})
+        data = {"reviews": []}
+        for hit in response['hits']['hits']:
+            data['reviews'].append({
+                'id': hit['_source'].get('id', None),
+                'title': hit['_source'].get('title', None),
+                'content': hit['_source'].get('content', None),
+            })
+        return JsonResponse(data)
 
 
 class ReviewView(APIView):
@@ -22,6 +42,7 @@ class ReviewView(APIView):
     permission_classes = [IsGetOrIsAuthenticated]
 
     def get(self, request):
+        logger.error(f"getting reviews: user {request.user}")
         if 'id' in self.request.GET:
             id = self.request.GET.get('id')
             try:
@@ -54,7 +75,6 @@ class ReviewView(APIView):
             } for obj in Review.objects.all()]})
 
     def post(self, request):
-
         data = request.data.dict()
 
         if 'sociability' not in data or \
@@ -72,7 +92,7 @@ class ReviewView(APIView):
                                         int(data['playfulness'])) / 3)
         data['review_text'] = None if 'review_text' not in data else data['review_text']
         data['user_id'] = request.user.id
-        Review.objects.create(
+        review = Review(
             review_title=data['review_title'],
             review_text=data['review_text'],
             general_rating=data['general_rating'],
@@ -82,6 +102,13 @@ class ReviewView(APIView):
             cat_id=data['cat_id'],
             user_id=data['user_id']
         )
+        review.save()
+
+        data['id'] = review.id
+
+        es_driver.ElasticsearchDriver().store_record('reviews', str(review.id),
+                                                     {"id": str(review.id), "title": review.review_title, 'content': review.review_text})
+
         return JsonResponse(data, status=201)
 
     def put(self, request):

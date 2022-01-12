@@ -61,7 +61,7 @@ REST_FRAMEWORK = {
 
 REST_USE_JWT = True
 
-SITE_ID = 3
+SITE_ID = 1
 
 JWT_AUTH_COOKIE = 'access-token'
 JWT_AUTH_REFRESH_COOKIE = 'refresh-token'
@@ -175,7 +175,7 @@ LOGGING = {
         'logstash': {
             'level': 'INFO',
             'class': 'logstash.TCPLogstashHandler',
-            'host': 'logstash',
+            'host': 'localhost',
             'port': 5000,
             'version': 1,
             'message_type': 'django',  # 'type' поле для logstash сообщения.
@@ -185,7 +185,7 @@ LOGGING = {
   },
   'loggers': {
         'django.request': {
-            'handlers': ['logstash'],
+            'handlers': ['logstash', 'console'],
             'level': 'INFO',
             'propagate': True,
         },
@@ -195,3 +195,8 @@ LOGGING = {
 ADMINS = [
     ('admin', '')
 ]
+
+ES_HOST = os.getenv('ES_HOST')
+ES_PORT = os.getenv('ES_PORT')
+ES_USER = os.getenv('ES_USER')
+ES_PASSWORD = os.getenv('ES_PASSWORD')

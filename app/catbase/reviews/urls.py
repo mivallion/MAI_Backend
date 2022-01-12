@@ -11,4 +11,5 @@ router = DefaultRouter()
 
 urlpatterns = [
     path('', views.ReviewView.as_view()),
+    path('search/', views.SearchView.as_view()),
 ]
